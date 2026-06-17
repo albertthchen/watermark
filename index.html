@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlbertImageLab (去除浮水印) - 魔法浮水印與物件去除工具</title>
+    <meta name="description" content="基於 OpenCV.js 影像修復技術的免費瀏覽器浮水印與物件去除工具。無需上傳伺服器，即時在本機清理影像。">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- OpenCV.js Loader Overlay -->
+    <div id="loader-overlay" class="loader-overlay">
+        <div class="loader-content">
+            <div class="logo-animation">
+                <i class="fa-solid fa-wand-magic-sparkles magic-icon-glow"></i>
+            </div>
+            <h2>正在初始化 AlbertImageLab (去除浮水印)</h2>
+            <p id="loader-status">正在載入電腦視覺元件...</p>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="loader-tip">由 OpenCV.js 提供技術支援 • 100% 在您的瀏覽器本機執行</div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-logo">
+                <i class="fa-solid fa-wand-magic-sparkles logo-icon"></i>
+                <span class="logo-text">AlbertImage<span class="logo-accent">Lab</span> <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted); opacity: 0.8; margin-left: 4px;">(去除浮水印)</span></span>
+            </div>
+            <div class="header-badge">
+                <i class="fa-solid fa-bolt"></i> 本機 WebAssembly
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="app-workspace">
+            
+            <!-- Upload Area (Initial State) -->
+            <div id="upload-screen" class="upload-screen">
+                <div class="upload-card" id="drop-zone">
+                    <div class="upload-icon-wrapper">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <h2>上傳您的圖片</h2>
+                    <p class="upload-subtitle">將圖片拖放到此處，或者瀏覽本機檔案</p>
+                    <div class="file-upload-wrapper" style="position: relative; display: inline-block;">
+                        <button class="btn btn-primary" id="browse-btn" style="pointer-events: none;">
+                            <i class="fa-solid fa-image"></i> 選擇圖片
+                        </button>
+                        <input type="file" id="file-input" accept="image/*" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10;">
+                    </div>
+                    <p class="upload-meta" style="margin-top: 1rem;">支援 PNG, JPG, JPEG, WEBP 格式。圖片絕不會離開您的裝置。</p>
+                </div>
+
+                <!-- Sample Images Section -->
+                <div class="samples-container">
+                    <h3>或試用範例圖片：</h3>
+                    <div class="samples-grid">
+                        <div class="sample-card" data-sample="watermark">
+                            <div class="sample-image-preview watermark-preview">
+                                <div class="sample-badge">浮水印</div>
+                            </div>
+                            <span>範例浮水印</span>
+                        </div>
+                        <div class="sample-card" data-sample="text">
+                            <div class="sample-image-preview text-preview">
+                                <div class="sample-badge">文字印章</div>
+                            </div>
+                            <span>範例文字印章</span>
+                        </div>
+                        <div class="sample-card" data-sample="blemish">
+                            <div class="sample-image-preview blemish-preview">
+                                <div class="sample-badge">瑕疵刮痕</div>
+                            </div>
+                            <span>瑕疵 / 刮痕範例</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Editor Screen (Active State, Hidden initially) -->
+            <div id="editor-screen" class="editor-screen hidden">
+                
+                <!-- Left Sidebar: Controls & Settings -->
+                <aside class="editor-sidebar">
+                    <div class="sidebar-section">
+                        <h3><i class="fa-solid fa-paint-brush"></i> 筆刷設定</h3>
+                        
+                        <!-- Tool Selection -->
+                        <div class="tool-toggle-container">
+                            <button class="tool-btn active" id="tool-brush" title="繪製標記">
+                                <i class="fa-solid fa-paint-brush"></i> 筆刷
+                            </button>
+                            <button class="tool-btn" id="tool-eraser" title="擦除標記">
+                                <i class="fa-solid fa-eraser"></i> 橡皮擦
+                            </button>
+                        </div>
+
+                        <!-- Brush Size -->
+                        <div class="setting-group">
+                            <div class="setting-label">
+                                <span>筆刷大小</span>
+                                <span id="brush-size-val">50px</span>
+                            </div>
+                            <input type="range" id="brush-size" min="5" max="100" value="50" class="slider">
+                        </div>
+                    </div>
+
+                    <div class="sidebar-section">
+                        <h3><i class="fa-solid fa-sliders"></i> 演算法設定</h3>
+                        
+                        <!-- Inpaint Algorithm -->
+                        <div class="setting-group">
+                            <label class="setting-label" for="inpaint-method">修復方法</label>
+                            <select id="inpaint-method" class="select-input">
+                                <option value="telea" selected>快速行進法 (Telea)</option>
+                                <option value="ns">納維-斯托克斯法 (流體力學)</option>
+                            </select>
+                        </div>
+
+                        <!-- Inpaint Radius -->
+                        <div class="setting-group">
+                            <div class="setting-label">
+                                <span>修復半徑</span>
+                                <span id="inpaint-radius-val">3px</span>
+                            </div>
+                            <input type="range" id="inpaint-radius" min="1" max="25" value="3" class="slider">
+                            <div class="setting-help">半徑較大時，融合邊緣更柔和，但可能會模糊細節。</div>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-section">
+                        <h3><i class="fa-solid fa-rotate-left"></i> 操作</h3>
+                        <div class="action-grid">
+                            <button class="btn btn-secondary" id="btn-undo" disabled>
+                                <i class="fa-solid fa-undo"></i> 復原
+                            </button>
+                            <button class="btn btn-secondary" id="btn-redo" disabled>
+                                <i class="fa-solid fa-redo"></i> 重做
+                            </button>
+                            <button class="btn btn-danger" id="btn-clear-mask">
+                                <i class="fa-solid fa-trash-can"></i> 清除標記
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- App Info -->
+                    <div class="sidebar-footer">
+                        <button class="btn btn-ghost" id="btn-back-to-upload">
+                            <i class="fa-solid fa-arrow-left"></i> 上傳新圖片
+                        </button>
+                    </div>
+                </aside>
+
+                <!-- Center Workspace: Canvas Editor -->
+                <section class="canvas-workspace">
+                    <div class="canvas-container-outer">
+                        <div class="canvas-container-inner" id="canvas-container">
+                            <!-- Target elements will be created and scaled dynamically -->
+                            <canvas id="display-canvas"></canvas>
+                            <!-- Brush circular cursor outline indicator -->
+                            <div id="brush-cursor" class="brush-cursor"></div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Editor Control Bar -->
+                    <div class="editor-bottom-bar">
+                        <!-- Left controls: Zooming -->
+                        <div class="zoom-controls">
+                            <button class="zoom-btn" id="btn-zoom-out" title="縮小">
+                                <i class="fa-solid fa-minus"></i>
+                            </button>
+                            <span class="zoom-level" id="zoom-level-text">100%</span>
+                            <button class="zoom-btn" id="btn-zoom-in" title="放大">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                            <button class="zoom-btn" id="btn-zoom-fit" title="最適大小">
+                                <i class="fa-solid fa-expand"></i>
+                            </button>
+                        </div>
+
+                        <!-- Center action: Run Inpaint -->
+                        <div class="process-action">
+                            <button class="btn btn-success btn-large" id="btn-inpaint">
+                                <span class="btn-text"><i class="fa-solid fa-wand-magic-sparkles"></i> 去除浮水印</span>
+                                <span class="btn-spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> 影像處理中...</span>
+                            </button>
+                        </div>
+
+                        <!-- Right actions: Compare & Save -->
+                        <div class="output-controls">
+                            <button class="btn btn-secondary" id="btn-compare" title="按住查看原圖" disabled>
+                                <i class="fa-solid fa-eye"></i> 對比原圖
+                            </button>
+                            <button class="btn btn-primary" id="btn-download" disabled>
+                                <i class="fa-solid fa-download"></i> 儲存圖片
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- OpenCV.js SDK Loader (Dynamically loaded in background via app.js) -->
+    <script>
+        window.OPENCV_LOADED = false;
+        window.OPENCV_LOADING = false;
+    </script>
+    <!-- Floating Debug Console (Only shows up if errors occur) -->
+    <div id="debug-console" style="position: fixed; bottom: 10px; right: 10px; width: 320px; max-height: 200px; background: rgba(15, 23, 42, 0.95); color: #10b981; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3); z-index: 10000; overflow-y: auto; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px);">
+        <div style="font-weight: bold; border-bottom: 1px solid rgba(16, 185, 129, 0.2); margin-bottom: 5px; padding-bottom: 3px; display: flex; justify-content: space-between;">
+            <span><i class="fa-solid fa-bug"></i> 除錯主控台</span>
+            <span style="color: #ef4444; cursor: pointer; font-weight: 800;" onclick="document.getElementById('debug-console').style.display='none'">[關閉]</span>
+        </div>
+        <div id="debug-log-list"></div>
+    </div>
+    <script>
+        (function() {
+            const list = document.getElementById('debug-log-list');
+            const consoleDiv = document.getElementById('debug-console');
+            
+            function logToScreen(msg, color = '#10b981') {
+                consoleDiv.style.display = 'block';
+                const item = document.createElement('div');
+                item.style.color = color;
+                item.style.marginBottom = '4px';
+                item.style.wordBreak = 'break-all';
+                item.innerText = msg;
+                list.appendChild(item);
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }
+            
+            window.addEventListener('error', function(e) {
+                logToScreen('[JS ERROR] ' + e.message + ' (line ' + e.lineno + ' in ' + e.filename.split('/').pop() + ')', '#f87171');
+            });
+            window.addEventListener('unhandledrejection', function(e) {
+                logToScreen('[ASYNC REJECTION] ' + e.reason, '#f87171');
+            });
+            
+            // Override console methods to feed logs into the panel
+            const _log = console.log;
+            const _warn = console.warn;
+            const _err = console.error;
+            
+            console.log = function(...args) {
+                _log.apply(console, args);
+                logToScreen(args.join(' '));
+            };
+            console.warn = function(...args) {
+                _warn.apply(console, args);
+                logToScreen('[WARN] ' + args.join(' '), '#fbbf24');
+            };
+            console.error = function(...args) {
+                _err.apply(console, args);
+                logToScreen('[ERROR] ' + args.join(' '), '#f87171');
+            };
+            
+            console.log("偵錯主控台已載入。等待使用者操作...");
+        })();
+    </script>
+    
+    <!-- App JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
