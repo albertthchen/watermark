@@ -221,59 +221,6 @@
         window.OPENCV_LOADED = false;
         window.OPENCV_LOADING = false;
     </script>
-    <!-- Floating Debug Console (Only shows up if errors occur) -->
-    <div id="debug-console" style="position: fixed; bottom: 10px; right: 10px; width: 320px; max-height: 200px; background: rgba(15, 23, 42, 0.95); color: #10b981; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3); z-index: 10000; overflow-y: auto; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px);">
-        <div style="font-weight: bold; border-bottom: 1px solid rgba(16, 185, 129, 0.2); margin-bottom: 5px; padding-bottom: 3px; display: flex; justify-content: space-between;">
-            <span><i class="fa-solid fa-bug"></i> 除錯主控台</span>
-            <span style="color: #ef4444; cursor: pointer; font-weight: 800;" onclick="document.getElementById('debug-console').style.display='none'">[關閉]</span>
-        </div>
-        <div id="debug-log-list"></div>
-    </div>
-    <script>
-        (function() {
-            const list = document.getElementById('debug-log-list');
-            const consoleDiv = document.getElementById('debug-console');
-            
-            function logToScreen(msg, color = '#10b981') {
-                consoleDiv.style.display = 'block';
-                const item = document.createElement('div');
-                item.style.color = color;
-                item.style.marginBottom = '4px';
-                item.style.wordBreak = 'break-all';
-                item.innerText = msg;
-                list.appendChild(item);
-                consoleDiv.scrollTop = consoleDiv.scrollHeight;
-            }
-            
-            window.addEventListener('error', function(e) {
-                logToScreen('[JS ERROR] ' + e.message + ' (line ' + e.lineno + ' in ' + e.filename.split('/').pop() + ')', '#f87171');
-            });
-            window.addEventListener('unhandledrejection', function(e) {
-                logToScreen('[ASYNC REJECTION] ' + e.reason, '#f87171');
-            });
-            
-            // Override console methods to feed logs into the panel
-            const _log = console.log;
-            const _warn = console.warn;
-            const _err = console.error;
-            
-            console.log = function(...args) {
-                _log.apply(console, args);
-                logToScreen(args.join(' '));
-            };
-            console.warn = function(...args) {
-                _warn.apply(console, args);
-                logToScreen('[WARN] ' + args.join(' '), '#fbbf24');
-            };
-            console.error = function(...args) {
-                _err.apply(console, args);
-                logToScreen('[ERROR] ' + args.join(' '), '#f87171');
-            };
-            
-            console.log("偵錯主控台已載入。等待使用者操作...");
-        })();
-    </script>
-    
     <!-- App JavaScript -->
     <script src="app.js"></script>
 </body>
