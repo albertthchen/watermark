@@ -14,6 +14,7 @@ let isDrawing = false;
 let currentTool = 'brush'; // 'brush' or 'eraser'
 let lastX = 0;
 let lastY = 0;
+let originalFileName = 'image.png'; // 原始上傳圖片的檔案名稱
 
 // Canvas Elements (Main and Offscreen)
 let imageCanvas = null;       // Offscreen canvas containing the current cleaned image
@@ -245,7 +246,8 @@ function loadFile(file) {
         return;
     }
     
-
+    // 儲存原始檔名
+    originalFileName = file.name;
     
     // 使用 URL.createObjectURL 進行即時且省記憶體的影像載入，避免讀取成巨大的 Base64 字串
     const objectUrl = URL.createObjectURL(file);
@@ -775,14 +777,36 @@ function downloadCleanedImage() {
         imageCanvas.height = originalHeight;
         imageCanvas.getContext('2d').drawImage(originalImageElement, 0, 0);
     }
+    
+    // 解析檔名與副檔名，並於尾端加上 -clear
+    const dotIndex = originalFileName.lastIndexOf('.');
+    let baseName = originalFileName;
+    let ext = 'png';
+    if (dotIndex !== -1) {
+        baseName = originalFileName.substring(0, dotIndex);
+        ext = originalFileName.substring(dotIndex + 1);
+    }
+    
+    const downloadName = `${baseName}-clear.${ext}`;
+    
+    // 根據副檔名決定輸出的 mimeType，保留原有格式
+    let mimeType = 'image/png';
+    const lowerExt = ext.toLowerCase();
+    if (lowerExt === 'jpg' || lowerExt === 'jpeg') {
+        mimeType = 'image/jpeg';
+    } else if (lowerExt === 'webp') {
+        mimeType = 'image/webp';
+    }
+    
     const link = document.createElement('a');
-    link.download = 'AlbertImageLab_cleaned.png';
-    link.href = imageCanvas.toDataURL('image/png');
+    link.download = downloadName;
+    link.href = imageCanvas.toDataURL(mimeType);
     link.click();
 }
 
 // Load High-Quality Sample Images from server for testing
 function loadSampleImage(type) {
+    originalFileName = `${type}.png`;
     const img = new Image();
     img.onload = function() {
         setupEditorWithImage(img);
