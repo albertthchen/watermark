@@ -156,6 +156,41 @@ body {
     -webkit-text-fill-color: transparent;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo-subtext {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    opacity: 0.8;
+    margin-left: 4px;
+}
+
+.btn-home-link {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: var(--transition-fast);
+}
+
+.btn-home-link:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
 .header-badge {
     display: flex;
     align-items: center;
@@ -953,5 +988,37 @@ body {
     
     .upload-card h2 {
         font-size: 1.35rem;
+    }
+    
+    /* 手機端頂部導覽列響應式優化 */
+    .app-header {
+        padding: 0 1rem;
+        height: 60px;
+    }
+
+    .logo-text {
+        font-size: 1.25rem;
+    }
+
+    .logo-subtext {
+        display: none !important; /* 隱藏副標題文字以騰出空間 */
+    }
+
+    .header-badge {
+        display: none !important; /* 隱藏 WebAssembly 標記 */
+    }
+
+    .home-link-text {
+        display: none !important; /* 隱藏「返回首頁」文字，僅留圖示 */
+    }
+
+    .btn-home-link {
+        padding: 0.5rem;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        justify-content: center;
+        align-items: center;
+        gap: 0;
     }
 }
