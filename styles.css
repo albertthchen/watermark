@@ -757,63 +757,201 @@ body {
 /* ==========================================
    Responsive Adaptations
    ========================================== */
+
+/* 預設隱藏手機端的控制項 */
+.sidebar-header-mobile,
+.floating-settings-btn {
+    display: none;
+}
+
 @media (max-width: 992px) {
     .editor-screen {
-        flex-direction: column;
+        flex-direction: row; /* 保持水平放置，避免區塊垂直擠壓 */
     }
+
+    /* 側邊欄改為手機版滑出式抽屜面板 */
     .editor-sidebar {
-        width: 100%;
-        height: auto;
-        max-height: 250px;
-        border-right: none;
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 290px;
+        height: 100%;
+        max-height: none;
+        background-color: rgba(15, 23, 42, 0.98);
+        border-right: 1px solid var(--border-color);
+        border-bottom: none;
+        backdrop-filter: blur(25px);
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem;
+        gap: 1.5rem;
+    }
+
+    .editor-sidebar.active {
+        transform: translateX(0);
+        box-shadow: 5px 0 25px rgba(0, 0, 0, 0.6);
+    }
+
+    /* 手機端側邊欄頂部關閉控制 */
+    .sidebar-header-mobile {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.75rem;
         border-bottom: 1px solid var(--border-color);
-        padding: 1rem;
-        gap: 1rem;
     }
+
+    .sidebar-header-mobile span {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--primary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .sidebar-close-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        font-size: 1.35rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition-fast);
+    }
+
+    .sidebar-close-btn:hover {
+        color: #ffffff;
+    }
+
+    /* 懸浮設定按鈕（開關側邊欄） */
+    .floating-settings-btn {
+        display: flex;
+        position: absolute;
+        left: 15px;
+        top: 15px;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: var(--primary-gradient);
+        color: #ffffff;
+        border: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        z-index: 50;
+        transition: var(--transition-fast);
+    }
+
+    .floating-settings-btn:hover {
+        transform: scale(1.05);
+    }
+
+    /* 確保編輯工作區撐滿畫面 */
+    .canvas-workspace {
+        width: 100%;
+        height: 100%;
+    }
+
     .sidebar-footer {
-        display: none; /* Accessible via header/other buttons */
+        margin-top: auto;
+        padding-top: 1rem;
+        display: block; /* 在抽屜底部重新顯示 */
     }
+
     .action-grid {
         grid-template-columns: repeat(3, 1fr);
     }
+
     .action-grid #btn-clear-mask {
         grid-column: span 1;
     }
-    .editor-bottom-bar {
-        padding: 0 1rem;
-    }
-    .zoom-controls, .output-controls {
-        width: auto;
-    }
+
     .zoom-level {
-        display: none; /* Save space */
+        display: none; /* 手機端隱藏縮放百分比文字 */
     }
 }
 
 @media (max-width: 600px) {
+    /* 調整上傳區範例圖片佈局為單行 3 列，節省垂直空間 */
+    .samples-container {
+        margin-top: 2rem;
+    }
+    
     .samples-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
     }
+
+    .sample-image-preview {
+        height: 75px;
+        border-radius: 12px;
+    }
+
+    .sample-card span {
+        font-size: 0.75rem;
+    }
+
+    /* 讓底部控制列在手機版保持單行等寬排列，避免按鈕被擠到看不見 */
     .editor-bottom-bar {
-        flex-direction: column;
-        height: auto;
-        padding: 1rem;
-        gap: 1rem;
-    }
-    .zoom-controls {
-        display: none; /* Hide zoom on small screens to fit buttons */
-    }
-    .process-action {
-        width: 100%;
-    }
-    .process-action button {
-        width: 100%;
-    }
-    .output-controls {
-        width: 100%;
+        display: flex;
+        flex-direction: row;
+        height: 72px;
+        padding: 0 0.5rem;
+        gap: 0.4rem;
         justify-content: space-between;
+        align-items: center;
     }
-    .output-controls button {
+
+    /* 行動版隱藏長字串，只留下精簡字詞 */
+    .btn-text-label-long {
+        display: none !important;
+    }
+
+    .zoom-controls {
+        display: none; /* 手機端隱藏縮放細節 */
+    }
+
+    /* 將包裹容器打散，使按鈕直接在底列進行 flex 分配 */
+    .process-action,
+    .output-controls {
+        display: contents;
+    }
+
+    /* 讓三個按鈕均分寬度，絕對不會溢出或擠在一起 */
+    .editor-bottom-bar .btn {
         flex: 1;
+        min-width: 0;
+        padding: 0.65rem 0.2rem !important;
+        font-size: 0.85rem !important;
+        height: 46px;
+        border-radius: 12px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 3px;
+        box-shadow: none;
+    }
+
+    .btn-large {
+        padding: 0.65rem 0.2rem !important;
+        font-size: 0.85rem !important;
+    }
+    
+    .upload-card {
+        padding: 2rem 1rem;
+        min-height: 240px;
+    }
+    
+    .upload-card h2 {
+        font-size: 1.35rem;
     }
 }

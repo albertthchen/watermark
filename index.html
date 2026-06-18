@@ -97,6 +97,12 @@
                 
                 <!-- Left Sidebar: Controls & Settings -->
                 <aside class="editor-sidebar">
+                    <!-- Mobile Close Header -->
+                    <div class="sidebar-header-mobile">
+                        <span><i class="fa-solid fa-sliders"></i> 工具與設定</span>
+                        <button class="sidebar-close-btn" id="btn-close-sidebar" title="關閉設定"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+
                     <div class="sidebar-section">
                         <h3><i class="fa-solid fa-paint-brush"></i> 筆刷設定</h3>
                         
@@ -168,6 +174,11 @@
 
                 <!-- Center Workspace: Canvas Editor -->
                 <section class="canvas-workspace">
+                    <!-- Floating Sidebar Toggle Button (Mobile only) -->
+                    <button class="floating-settings-btn" id="btn-toggle-sidebar" title="工具設定">
+                        <i class="fa-solid fa-sliders"></i>
+                    </button>
+
                     <div class="canvas-container-outer">
                         <div class="canvas-container-inner" id="canvas-container">
                             <!-- Target elements will be created and scaled dynamically -->
@@ -193,21 +204,21 @@
                             </button>
                         </div>
 
-                        <!-- Center action: Run Inpaint -->
+                                                <!-- Center action: Run Inpaint -->
                         <div class="process-action">
                             <button class="btn btn-success btn-large" id="btn-inpaint">
-                                <span class="btn-text"><i class="fa-solid fa-wand-magic-sparkles"></i> 去除浮水印</span>
-                                <span class="btn-spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> 影像處理中...</span>
+                                <span class="btn-text"><i class="fa-solid fa-wand-magic-sparkles"></i> <span class="btn-text-label-short">去除</span><span class="btn-text-label-long">浮水印</span></span>
+                                <span class="btn-spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> <span class="btn-text-label-short">處理</span><span class="btn-text-label-long">中...</span></span>
                             </button>
                         </div>
 
                         <!-- Right actions: Compare & Save -->
                         <div class="output-controls">
                             <button class="btn btn-secondary" id="btn-compare" title="按住查看原圖" disabled>
-                                <i class="fa-solid fa-eye"></i> 對比原圖
+                                <i class="fa-solid fa-eye"></i> <span class="btn-text-label-short">對比</span><span class="btn-text-label-long">原圖</span>
                             </button>
                             <button class="btn btn-primary" id="btn-download" disabled>
-                                <i class="fa-solid fa-download"></i> 儲存圖片
+                                <i class="fa-solid fa-download"></i> <span class="btn-text-label-short">儲存</span><span class="btn-text-label-long">圖片</span>
                             </button>
                         </div>
                     </div>
