@@ -803,117 +803,130 @@ body {
 
 @media (max-width: 992px) {
     .editor-screen {
-        flex-direction: row; /* 保持水平放置，避免區塊垂直擠壓 */
+        flex-direction: column; /* 手機端改為上下排列：頂部為工具欄，下方為畫布 */
     }
 
-    /* 側邊欄改為手機版滑出式抽屜面板 */
+    /* 側邊欄改為手機版橫向滑動工具列，永遠可見 */
     .editor-sidebar {
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 290px;
-        height: 100%;
-        max-height: none;
-        background-color: rgba(15, 23, 42, 0.98);
-        border-right: 1px solid var(--border-color);
-        border-bottom: none;
-        backdrop-filter: blur(25px);
-        transform: translateX(-100%);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 1000;
-        display: flex;
-        flex-direction: column;
-        padding: 1.5rem;
-        gap: 1.5rem;
-    }
-
-    .editor-sidebar.active {
-        transform: translateX(0);
-        box-shadow: 5px 0 25px rgba(0, 0, 0, 0.6);
-    }
-
-    /* 手機端側邊欄頂部關閉控制 */
-    .sidebar-header-mobile {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .sidebar-header-mobile span {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: var(--primary);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .sidebar-close-btn {
-        background: transparent;
-        border: none;
-        color: var(--text-muted);
-        font-size: 1.35rem;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: var(--transition-fast);
-    }
-
-    .sidebar-close-btn:hover {
-        color: #ffffff;
-    }
-
-    /* 懸浮設定按鈕（開關側邊欄） */
-    .floating-settings-btn {
-        display: flex;
-        position: absolute;
-        left: 15px;
-        top: 15px;
-        width: 46px;
-        height: 46px;
-        border-radius: 50%;
-        background: var(--primary-gradient);
-        color: #ffffff;
-        border: none;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
-        z-index: 50;
-        transition: var(--transition-fast);
-    }
-
-    .floating-settings-btn:hover {
-        transform: scale(1.05);
-    }
-
-    /* 確保編輯工作區撐滿畫面 */
-    .canvas-workspace {
+        position: static;
         width: 100%;
-        height: 100%;
+        height: auto;
+        max-height: none;
+        background-color: #111827;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        backdrop-filter: none;
+        transform: none;
+        transition: none;
+        display: flex;
+        flex-direction: row;
+        padding: 0.5rem 1rem;
+        gap: 1.5rem;
+        overflow-x: auto; /* 橫向滾動 */
+        overflow-y: hidden;
+        align-items: center;
+        white-space: nowrap;
+        z-index: 10;
+        -webkit-overflow-scrolling: touch;
     }
 
-    .sidebar-footer {
-        margin-top: auto;
-        padding-top: 1rem;
-        display: block; /* 在抽屜底部重新顯示 */
+    /* 隱藏行動端的浮動按鈕與關閉頁首 */
+    .sidebar-header-mobile,
+    .floating-settings-btn {
+        display: none !important;
+    }
+
+    /* 讓側邊欄內部的區塊變為水平排版 */
+    .sidebar-section {
+        display: inline-flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.75rem;
+        flex-shrink: 0;
+    }
+
+    .sidebar-section h3 {
+        font-size: 0.8rem;
+        margin-bottom: 0;
+        letter-spacing: 0.5px;
+        flex-shrink: 0;
+    }
+
+    .tool-toggle-container {
+        display: flex;
+        width: auto;
+        padding: 2px;
+    }
+
+    .tool-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .setting-group {
+        display: inline-flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .setting-label {
+        display: inline-flex;
+        gap: 0.25rem;
+        font-size: 0.8rem;
+        margin-bottom: 0;
+    }
+
+    .setting-help {
+        display: none; /* 手機端隱藏說明文字 */
+    }
+
+    .select-input {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+        border-radius: 8px;
+    }
+
+    .slider {
+        width: 100px; /* 橫向排列時限制滑動條寬度 */
+        margin: 0;
     }
 
     .action-grid {
-        grid-template-columns: repeat(3, 1fr);
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+
+    .action-grid button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        border-radius: 8px;
     }
 
     .action-grid #btn-clear-mask {
-        grid-column: span 1;
+        grid-column: auto;
     }
 
-    .zoom-level {
-        display: none; /* 手機端隱藏縮放百分比文字 */
+    .sidebar-footer {
+        margin-top: 0;
+        border-top: none;
+        padding-top: 0;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .sidebar-footer button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        border-radius: 8px;
+    }
+
+    /* 確保編輯工作區撐滿剩餘畫面 */
+    .canvas-workspace {
+        width: 100%;
+        height: 100%;
+        flex: 1;
     }
 }
 
